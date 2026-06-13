@@ -606,7 +606,11 @@ export default function JukenDashboard() {
             onSchoolChange={(id)=>setState((s)=>({...s,mountainSchoolId:id}))} addTask={addTask} toggleTask={toggleTask} delTask={delTask}
             badges={badges} earnedBadges={earnedBadges} addReward={addReward} claimReward={claimReward} delReward={delReward} />
         ) : page==="pomodoro" ? (
-          <PomodoroPage addLog={addLog} studyLogs={state.studyLogs} settings={state.pomodoro} onSettings={(patch)=>setState((s)=>({...s,pomodoro:{...s.pomodoro,...patch}}))} />
+          <>
+            <PomodoroPage addLog={addLog} studyLogs={state.studyLogs} settings={state.pomodoro} onSettings={(patch)=>setState((s)=>({...s,pomodoro:{...s.pomodoro,...patch}}))} />
+            <DailyTasks tasks={state.dailyTasks} addTask={addTask} toggleTask={toggleTask} delTask={delTask} />
+            <StudyForm onAdd={addLog} logs={state.studyLogs} onDelete={delLog} />
+          </>
         ) : page==="tests" ? (
           <TestsPage metrics={metrics} hensachi={hensachi} teikiChart={teikiChart} addMock={addMock} delMock={delMock} />
         ) : page==="parent" ? (
@@ -652,7 +656,6 @@ function HomePage({ state, metrics, last14, bySubject, addLog, delLog, onSchoolC
     <MountainProgress start={metrics.startAvg} current={metrics.latestAvg} school={metrics.school} pace={metrics.pace}
       schools={state.schools} schoolId={state.mountainSchoolId} onSchoolChange={onSchoolChange}
       hasData={metrics.devSeries.length>0} taskDone={metrics.taskDone} taskTotal={metrics.taskTotal} />
-    <DailyTasks tasks={state.dailyTasks} addTask={addTask} toggleTask={toggleTask} delTask={delTask} />
     <BadgeShelf badges={badges} />
     <RewardsPanel rewards={state.rewards} m={metrics} earnedBadges={earnedBadges} addReward={addReward} claimReward={claimReward} delReward={delReward} />
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-5">
@@ -677,7 +680,6 @@ function HomePage({ state, metrics, last14, bySubject, addLog, delLog, onSchoolC
             </BarChart></ResponsiveContainer></div>)}
       </div>
     </div>
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-5"><StudyForm onAdd={addLog} logs={state.studyLogs} onDelete={delLog} /></div>
   </>);
 }
 
