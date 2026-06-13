@@ -317,8 +317,10 @@ function PomodoroPage({ addLog, studyLogs, settings, onSettings }) {
   const durationMin = mode==="work"?settings.workMin:mode==="break"?settings.breakMin:settings.longBreakMin;
   const durationMs = Math.max(1,durationMin)*60000;
   const info = MODE_INFO[mode];
-  const bgmCmd = (func)=>{ try{const w=iframeRef.current&&iframeRef.current.contentWindow; if(w) w.postMessage(JSON.stringify({event:"command",func,args:[]}),"*");}catch(e){} };
-  const syncBgm = (st,md)=>{ if(!settings.bgmSync) return; bgmCmd(st==="running"&&MODE_INFO[md].bgmPlay?"playVideo":"pauseVideo"); };
+  const bgmCmd = (func,args=[])=>{ try{const w=iframeRef.current&&iframeRef.current.contentWindow; if(w) w.postMessage(JSON.stringify({event:"command",func,args}),"*");}catch(e){} };
+  // 集中：再生は実行中のみ／休憩(小休憩・ロング)：一時停止以外は流し続ける
+  const shouldPlayBgm = (st,md)=> md==="work" ? st==="running" : st!=="paused";
+  const syncBgm = (st,md)=>{ if(!settings.bgmSync) return; bgmCmd(shouldPlayBgm(st,md)?"playVideo":"pauseVideo"); };
 
   useEffect(()=>{ if(status!=="running") return; const id=setInterval(()=>{const left=endsAtRef.current-Date.now(); if(left<=0) complete(); else setRemainMs(left);},250); return ()=>clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -329,7 +331,7 @@ function PomodoroPage({ addLog, studyLogs, settings, onSettings }) {
 
   const start=()=>{ endsAtRef.current=Date.now()+remainMs; setStatus("running"); syncBgm("running",mode); };
   const pause=()=>{ setRemainMs(Math.max(0,endsAtRef.current-Date.now())); setStatus("paused"); syncBgm("paused",mode); };
-  const reset=()=>{ setStatus("idle"); setRemainMs(durationMs); syncBgm("idle",mode); };
+  const reset=()=>{ setStatus("idle"); setRemainMs(durationMs); if(settings.bgmSync){ bgmCmd("pauseVideo"); bgmCmd("seekTo",[0,true]); } };
   const switchMode=(m)=>{ setMode(m); setStatus("idle"); const mins=m==="work"?settings.workMin:m==="break"?settings.breakMin:settings.longBreakMin; setRemainMs(Math.max(1,mins)*60000); syncBgm("idle",m); };
   const complete=()=>{ beep(); if(mode==="work"){ addLog({date:todayYMD(),subject,minutes:settings.workMin,note:"🍅ポモドーロ"}); const nc=cycle+1; setCycle(nc); switchMode(nc%Math.max(1,settings.cyclesUntilLong)===0?"longBreak":"break"); } else switchMode("work"); };
   const stopAndLog=()=>{ const elapsed=durationMs-Math.max(0,endsAtRef.current?endsAtRef.current-Date.now():remainMs); const mins=Math.max(1,Math.round((status==="idle"?durationMs-remainMs:elapsed)/60000)); addLog({date:todayYMD(),subject,minutes:mins,note:"🍅ポモドーロ(中断)"}); switchMode("work"); };
