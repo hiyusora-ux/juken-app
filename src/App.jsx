@@ -355,7 +355,7 @@ function PomodoroPage({ addLog, studyLogs, settings, onSettings }) {
               <circle cx="122" cy="122" r={R} fill="none" stroke={C.line} strokeWidth="12" />
               <circle cx="122" cy="122" r={R} fill="none" stroke={info.color} strokeWidth="12" strokeLinecap="round" strokeDasharray={CIRC} strokeDashoffset={CIRC*(1-ratio)} transform="rotate(-90 122 122)" style={{ transition:"stroke-dashoffset .25s linear", filter:`drop-shadow(0 0 8px ${info.color})` }} />
             </svg>
-            <div style={{ position: "absolute", inset: 0 }} className="flex flex-col items-center justify-center">
+            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }} className="flex flex-col items-center justify-center">
               <Hud color={info.color}>{info.icon} {info.label}</Hud>
               <div style={{ fontFamily: MONO, fontSize: 52, fontWeight: 800, lineHeight: 1.1, color: C.ink, textShadow: glow(info.color,12) }}>{pad(mm)}:{pad(ss)}</div>
               {mode==="work" && <span style={{ fontSize: 12, color: C.sub, fontWeight: 700 }}>科目：{subject}</span>}
